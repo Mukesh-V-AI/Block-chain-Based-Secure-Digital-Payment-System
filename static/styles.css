@@ -1,0 +1,80 @@
+/* Glassmorphism panel styling */
+.glass-panel {
+    background: rgba(31, 41, 55, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.font-mono {
+    font-family: 'Fira Code', monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.5);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.8);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 1);
+}
+
+/* Block card styling */
+.block-card {
+    transition: all 0.3s ease;
+}
+.block-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+.block-valid {
+    border-left: 4px solid #10b981; /* emerald-500 */
+}
+.block-invalid {
+    border-left: 4px solid #ef4444; /* red-500 */
+    background: rgba(239, 68, 68, 0.05);
+    animation: shake 0.5s;
+}
+
+/* Animations */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes fadeOut {
+    to { opacity: 0; }
+}
+
+/* Toast styling */
+.toast-notification {
+    animation: slideInRight 0.3s ease-out forwards;
+}
+.toast-hiding {
+    animation: fadeOut 0.3s ease-in forwards;
+}
+
+.break-all {
+    word-break: break-all;
+}

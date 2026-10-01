@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Digital Payment System (Blockchain Lab)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.4/elliptic.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="bg-gray-900 text-gray-100 font-inter min-h-screen">
+    <div id="app" class="max-w-7xl mx-auto px-4 py-8">
+        
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400 mb-2">
+                Blockchain-Based Secure Digital Payment System
+            </h1>
+            <p class="text-gray-400 text-lg">Cryptographic Security, Proof-of-Work Consensus & Tamper Detection</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Wallet & Transfer -->
+            <div class="lg:col-span-1 space-y-8">
+                
+                <!-- Wallet Dashboard -->
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        Wallet Dashboard
+                    </h2>
+                    
+                    <button id="btnCreateWallet" class="w-full bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded-lg font-medium mb-4 shadow-lg shadow-blue-500/30">
+                        Generate New Wallet
+                    </button>
+
+                    <div id="walletDetails" class="hidden space-y-4">
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase tracking-wide">Wallet Address</label>
+                            <div class="bg-gray-800 p-2 rounded border border-gray-700 font-mono text-sm break-all text-blue-300" id="walletAddress"></div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase tracking-wide">Public Key</label>
+                            <div class="bg-gray-800 p-2 rounded border border-gray-700 font-mono text-xs break-all h-16 overflow-y-auto" id="publicKey"></div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400 uppercase tracking-wide flex justify-between">
+                                Private Key <span class="text-red-400 text-[10px]">(Secret! Do not share)</span>
+                            </label>
+                            <div class="bg-gray-800 p-2 rounded border border-gray-700 font-mono text-xs break-all h-16 overflow-y-auto" id="privateKey"></div>
+                        </div>
+                        <div class="pt-2 border-t border-gray-700 flex justify-between items-center">
+                            <span class="text-gray-400">Balance:</span>
+                            <span class="text-2xl font-bold text-emerald-400" id="walletBalance">0.00</span>
+                        </div>
+                        <button id="btnRefreshBalance" class="text-xs text-blue-400 hover:text-blue-300 underline">Refresh Balance</button>
+                    </div>
+                </div>
+
+                <!-- Transfer Funds -->
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
+                    <h2 class="text-2xl font-semibold mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                        Transfer Funds
+                    </h2>
+                    
+                    <form id="transferForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Recipient Address</label>
+                            <input type="text" id="txRecipient" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500 font-mono text-sm" placeholder="0x..." required>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-1">Amount</label>
+                            <input type="number" id="txAmount" step="0.01" min="0" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" placeholder="0.00" required>
+                        </div>
+                        <div class="text-xs text-gray-500 italic">
+                            Transaction will be signed client-side using your loaded Private Key.
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 transition px-4 py-2 rounded-lg font-medium shadow-lg shadow-emerald-500/30">
+                            Sign & Send Transaction
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Blockchain & Mempool -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Mempool & Mining -->
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500 to-pink-500"></div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold flex items-center gap-2">
+                            <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            Mempool & Mining
+                        </h2>
+                        <button id="btnMineBlock" class="bg-orange-600 hover:bg-orange-500 transition px-4 py-2 rounded-lg font-medium shadow-lg shadow-orange-500/30 text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Mine Block (PoW)
+                        </button>
+                    </div>
+                    
+                    <div id="mempoolContainer" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+                        <div class="text-gray-500 text-sm italic">No pending transactions.</div>
+                    </div>
+                </div>
+
+                <!-- Security Audit & Tamper Lab -->
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden border border-red-500/20">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-rose-500"></div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold flex items-center gap-2">
+                            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            Security Audit & Tamper Lab
+                        </h2>
+                        <button id="btnAuditChain" class="bg-gray-700 hover:bg-gray-600 transition px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2">
+                            Run Security Audit
+                        </button>
+                    </div>
+
+                    <div id="auditStatus" class="mb-4 hidden p-3 rounded-lg border flex items-center gap-3">
+                        <div id="auditIcon"></div>
+                        <div>
+                            <div id="auditTitle" class="font-bold"></div>
+                            <div id="auditMessage" class="text-sm text-gray-300"></div>
+                        </div>
+                    </div>
+
+                    <form id="tamperForm" class="flex gap-4 items-end bg-red-500/5 p-4 rounded-xl border border-red-500/20">
+                        <div class="flex-1">
+                            <label class="block text-xs text-gray-400 mb-1">Target Block Index</label>
+                            <input type="number" id="tamperBlockIndex" min="1" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500" placeholder="1" required>
+                        </div>
+                        <div class="flex-1">
+                            <label class="block text-xs text-gray-400 mb-1">New TX Amount (Optional)</label>
+                            <input type="number" id="tamperTxAmount" step="0.01" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500" placeholder="Leave empty to alter hash">
+                        </div>
+                        <button type="submit" class="bg-red-600 hover:bg-red-500 transition px-4 py-2 rounded-lg font-medium shadow-lg shadow-red-500/30 h-[42px]">
+                            Inject Tamper
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Blockchain Explorer -->
+                <div>
+                    <h2 class="text-2xl font-semibold mb-4">Blockchain Explorer</h2>
+                    <div id="blockchainContainer" class="space-y-4 flex flex-col-reverse">
+                        <!-- Blocks injected here -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
